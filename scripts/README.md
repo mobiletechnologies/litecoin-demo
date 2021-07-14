@@ -2,19 +2,19 @@
 
 Wanted behaviour
 
-- get some data from the file (`data_file.txt`) excluding header
+- get some data from the file (`data_file.txt`) excluding headers
 
-- re-arrange cols for output
+- re-arrange columns for output
 
-- change the standard UID adding a prefix, sorting list by vote
+- change the standard UID adding a prefix, sorting list by column vote
 
-- Fix some wrong chars
+- Fix some unwanted chars
 
-- Update TODO field with a date
+- Update all `TODO` value with current date
 
 - Uppercase results
 
-It finally output rows in terminal as CSV.
+Finally output rows in terminal as CSV.
 
 ```bash
 $ ./script1.sh
@@ -27,7 +27,7 @@ UID-1366,AMIT,PHYSICS,80,2021-07-13
 
 # Step 5 (script grown-ups)
 
-Same result can be obtained using python script in `python/main.py`.
+Same result using a python script in `python/main.py`.
 
 ```bash
 $ python/main.py -i data_file.txt
@@ -37,3 +37,5 @@ UID-1456,HARI,HISTORY,89,2021-07-13
 UID-1444,KEDAR,ENGLISH,85,2021-07-13
 UID-1366,AMIT,PHYSICS,80,2021-07-13
 ```
+
+Note: the python script require a flag to specify the file to use.
