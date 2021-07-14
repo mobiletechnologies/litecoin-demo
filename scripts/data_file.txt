@@ -1,0 +1,6 @@
+ID name     area      Vote  UID    Managed
+1) Amit     Physics   80    1366   TODO
+2) Rahul    Maths     90    1574   TODO
+3) Shyam    Biology   87    1567   TODO
+4) Kèdar    English   85    1444   TODO
+5) Hari     History   89    1456   TODO

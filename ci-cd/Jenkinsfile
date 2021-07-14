@@ -1,0 +1,93 @@
+pipeline {
+    agent any
+    
+    environment {
+        BASE_IMAGE = "uphold/litecoin-core:0.18.1" // Required only if need to clean up always
+
+        IMAGE_NAME = "sbernardellodxc/litecoin"
+        IMAGE_TAG = "${sh(script:'echo \$(date +%F)-\$(date +%H)\$(date +%M)', returnStdout: true)}"
+        IMAGE_FULLNAME = "$IMAGE_NAME:$IMAGE_TAG"
+
+        RUN_BUILD = true
+        RUN_SCAN = true
+        RUN_DEPLOY = true
+        
+        // These needs to be present in jenkins credentials
+        DOCKER_CREDENTIAL = 'docker_token'
+        TEAMS_HOOK=credentials("jenkins-ms-teams-token")
+    }
+
+    options {
+        timestamps()
+        ansiColor("xterm")
+        disableConcurrentBuilds()
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "Cloning repo..."
+                checkout scm
+            }
+        }
+            
+        stage('Build') {
+            when {
+                environment name: 'RUN_BUILD', value: 'true'
+            }
+            steps {
+                sh label: 'Docker Build', script: 'docker build -t $IMAGE_FULLNAME docker/'
+            }
+        }
+        
+        stage('Scan Image') {
+            when {
+                environment name: 'RUN_BUILD', value: 'true'
+                environment name: 'RUN_SCAN', value: 'true'
+            }
+            steps {
+                script {
+                    echo "Vulnerability Scan Images"
+                    sh 'grype -f critical $IMAGE_FULLNAME -o json > scan_result.json'
+
+                    archiveArtifacts artifacts: "scan_result.json"
+                }
+            }  // end scan image stage
+        }
+
+        stage('Deploy') {
+            when {
+                environment name: 'RUN_BUILD', value: 'true'
+                environment name: 'RUN_DEPLOY', value: 'true'
+            }
+            steps {
+                withDockerRegistry(credentialsId: DOCKER_CREDENTIAL, url:'') {
+                    sh 'docker push $IMAGE_FULLNAME'
+                }
+            }
+        }
+        
+    }
+
+    post {
+            always {
+                // Cleanup workspace
+                deleteDir() 
+            
+                // Cleanup docker image
+                sh 'docker image rm $IMAGE_FULLNAME || true'
+                // can delete also base image if a build from scratch is required
+                sh 'docker image rm $BASE_IMAGE || true'
+            }
+            success {
+                echo 'Build succeeded!'
+            }
+            failure {
+                echo 'Build failed!'
+                // Notify if required
+                //mail to: 'sbernardello@email.com, subject: 'Build failed!', 
+                //     body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}"
+                //office365ConnectorSend message: "Build failed!", status:"${currentBuild.currentResult}", webhookUrl: "${env.TEAMS_HOOK}", color: "d00000"
+            }
+        }
+}

@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: litecoin
+spec:
+  selector:
+    matchLabels:
+      app: litecoin
+  serviceName: "litecoin"
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: litecoin
+    spec:
+      securityContext:
+        runAsUser: 999 # in the actual build litecoin uid and gid is 999
+        runAsGroup: 999
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: litecoin
+        image: sbernardellodxc/litecoin:v0.18.1 # note: this is for testing purpose using public registry, the correct image should be the one created at step 1
+        command: ["/entrypoint.sh"]
+        args: ["-printtoconsole", "-regtest=1"]
+        volumeMounts:
+        - name: working-dir
+          mountPath: /home/litecoin/.litecoin
+        resources:
+          requests:
+            cpu: 25m
+            memory: 250Mi
+          limits:
+            cpu: 80m
+            memory: 500Mi
+  volumeClaimTemplates:
+  - metadata:
+      name: working-dir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "hostpath" # this is for docker-kubernetes only (manually created for local testing only) on AWS it storage class could be an efs volume
+      resources:
+        requests:
+          storage: 1Gi
