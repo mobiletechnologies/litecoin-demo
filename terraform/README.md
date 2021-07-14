@@ -4,6 +4,13 @@
 
 This is deployed using [terragrunt](https://github.com/gruntwork-io/terragrunt) is a thin wrapper for Terraform that provides extra tools for keeping your Terraform configurations DRY, working with multiple Terraform modules, and managing remote state.
 
+To deploy (having the proper AWS environment set and terragrunt installed)
+
+```bash
+terragrunt init
+terragrunt apply
+```
+
 The `terragrunt.hcl` contains the values of vars used by the module:
 
 ```terraform
