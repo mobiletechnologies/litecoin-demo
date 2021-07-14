@@ -2,7 +2,7 @@
 
 ## Description
 
-This is deployed using [terragrunt](https://github.com/gruntwork-io/terragrunt) a thin wrapper for Terraform that supports locking and enforces best.
+This is deployed using [terragrunt](https://github.com/gruntwork-io/terragrunt) is a thin wrapper for Terraform that provides extra tools for keeping your Terraform configurations DRY, working with multiple Terraform modules, and managing remote state.
 
 The `terragrunt.hcl` contains the values of vars used by the module:
 
